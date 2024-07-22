@@ -17,7 +17,7 @@ const router = createRouter({
       component: InfoView
     },
     {
-      path: '/read/:id',
+      path: '/read/:title/:lang/:chap',
       name: 'read',
       component: ReadView
     }

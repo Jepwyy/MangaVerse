@@ -3,9 +3,10 @@ import { useRoute } from 'vue-router'
 import axios from '../api/api'
 import { useQuery } from 'vue-query'
 const route = useRoute()
+
 const { data, isLoading, error } = useQuery(['info'], async () => {
   const res = await axios.get(
-    `meta/anilist-manga/read?chapterId=demon-slayer-kimetsu-no-yaiba-stories-of-water-and-flame-1261/en/chapter-1&provider=mangareader`
+    `meta/anilist-manga/read?chapterId=${route.params.title}/${route.params.lang}/${route.params.chap}&provider=mangareader`
   )
   return res.data
 })
