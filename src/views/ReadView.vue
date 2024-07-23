@@ -1,27 +1,79 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import axios from '../api/api'
 import { useQuery } from 'vue-query'
+import LoaderBar from '@/components/LoaderBar.vue'
+import { computed, ref, watch } from 'vue'
 const route = useRoute()
-
-const { data, isLoading, error } = useQuery(['info'], async () => {
+const router = useRouter()
+const { data: mangaInfo } = useQuery(['info', route.params.id], async () => {
+  const res = await axios.get(`meta/anilist-manga/info/${route.params.id}?provider=mangareader`)
+  return res.data
+})
+const {
+  data: mangeChapters,
+  isLoading,
+  error
+} = useQuery(['chapters', route.params.chap], async () => {
   const res = await axios.get(
     `meta/anilist-manga/read?chapterId=${route.params.title}/${route.params.lang}/${route.params.chap}&provider=mangareader`
   )
   return res.data
 })
+
+const currentIndex = ref(0)
+const totalChapters = ref(0)
+const hasPrev = computed(() => currentIndex.value > 0)
+const hasNext = computed(() => currentIndex.value < totalChapters.value - 1)
+
+watch(mangaInfo, (newInfo) => {
+  currentIndex.value = newInfo?.chapters.findIndex(
+    (chapter: any) =>
+      chapter.id == `${route.params.title}/${route.params.lang}/${route.params.chap}`
+  )
+
+  totalChapters.value = newInfo.chapters.length
+})
+const prevChapter = async (chapter: string) => {
+  await router.push(`/read/${route.params.id}/${chapter}`)
+  router.go(0)
+}
+
+const nextChapter = async (chapter: string) => {
+  await router.push(`/read/${route.params.id}/${chapter}`)
+  router.go(0)
+}
 </script>
 <template>
   <div>
-    <h1>This is an read page</h1>
+    <h1 class="m-4 text-gray-400 font-bold text-lg capitalize">{{ route.params.chap }}</h1>
   </div>
-  <div v-if="isLoading">Loading...</div>
+  <div v-if="isLoading"><LoaderBar /></div>
   <div v-else-if="error">Error: {{ error.message }}</div>
-  <div v-else>
-    <pre>{{ data }}</pre>
+  <div v-else class="flex flex-col justify-center">
+    <img
+      v-for="manga in mangeChapters"
+      :src="manga.img"
+      :alt="manga.page"
+      :key="manga.page"
+      class="max-w-screen-sm w-full self-center"
+    />
   </div>
-  <img
-    src="https://c-1.mreadercdn.com/_v2/1/0dcb8f9eaacfd940603bd75c7c152919c72e45517dcfb1087df215e3be94206cfdf45f64815888ea0749af4c0ae5636fabea0abab8c2e938ab3ad7367e9bfa52/3b/b7/3bb700a5dffe55a356dcb99d5c758f09/3bb700a5dffe55a356dcb99d5c758f09_1900.jpeg?t=515363393022bbd440b0b7d9918f291a&ttl=1908547557"
-    alt=""
-  />
+  <div class="flex justify-center items-center mt-8 gap-2">
+    <button
+      :disabled="!hasPrev"
+      @click="prevChapter(mangaInfo.chapters[currentIndex - 1].id)"
+      class="px-4 h-10 rounded-md text-gray-500 bg-[#181919] hover:bg-[#1e1f1f] font-bold capitalize disabled:cursor-not-allowed disabled:bg-[#121212]"
+    >
+      prev
+    </button>
+    <h1 class="m-4 text-gray-400 font-bold text-lg capitalize">{{ route.params.chap }}</h1>
+    <button
+      :disabled="!hasNext"
+      @click="nextChapter(mangaInfo.chapters[currentIndex + 1].id)"
+      class="px-4 h-10 rounded-md text-gray-500 bg-[#181919] hover:bg-[#1e1f1f] font-bold capitalize disabled:cursor-not-allowed disabled:bg-[#121212]"
+    >
+      next
+    </button>
+  </div>
 </template>

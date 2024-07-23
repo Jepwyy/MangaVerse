@@ -8,7 +8,7 @@ const {
   data: mangaInfo,
   isLoading,
   error
-} = useQuery(['info'], async () => {
+} = useQuery(['info', route.params.id], async () => {
   const res = await axios.get(`meta/anilist-manga/info/${route.params.id}?provider=mangareader`)
   return res.data
 })
