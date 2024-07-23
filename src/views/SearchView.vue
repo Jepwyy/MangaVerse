@@ -32,7 +32,7 @@ const onSubmit = () => {
           alt="logo"
           class="h-[5.5rem] self-center shadow-lg shadow-[#1a1a1a] p-2"
         />
-        <form class="flex items-center justify-center" @submit.prevent="onSubmit">
+        <form class="flex items-center justify-center px-4" @submit.prevent="onSubmit">
           <input
             v-model="searchQuery"
             type="text"
@@ -49,7 +49,7 @@ const onSubmit = () => {
     <div v-else-if="error">Error: {{ error.message }}</div>
     <div
       v-else
-      class="grid lg:grid-cols-7 grid-cols-3 gap-[.81rem] lg:px-[20rem] md:px-[5rem] px-4"
+      class="grid xl:grid-cols-6 lg:grid-cols-5 md:grid-cols-4 grid-cols-3 gap-[.81rem] lg:px-[20rem] md:px-[5rem] px-4"
     >
       <RouterLink v-for="item in mangaData?.results" :key="item.id" :to="`/info/${item.id}`">
         <div className="w-[100%]  rounded-md ">
