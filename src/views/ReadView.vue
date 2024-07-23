@@ -6,7 +6,7 @@ import LoaderBar from '@/components/LoaderBar.vue'
 import { computed, ref, watch } from 'vue'
 const route = useRoute()
 const router = useRouter()
-const { data: mangaInfo } = useQuery(['info', route.params.id], async () => {
+const { data: mangaInfo, isLoading: infoLoad } = useQuery(['info', route.params.id], async () => {
   const res = await axios.get(`meta/anilist-manga/info/${route.params.id}?provider=mangareader`)
   return res.data
 })
@@ -14,7 +14,7 @@ const {
   data: mangeChapters,
   isLoading,
   error
-} = useQuery(['chapters', route.params.chap], async () => {
+} = useQuery(['chapters', route.params.lang, route.params.chap], async () => {
   const res = await axios.get(
     `meta/anilist-manga/read?chapterId=${route.params.title}/${route.params.lang}/${route.params.chap}&provider=mangareader`
   )
@@ -48,7 +48,7 @@ const nextChapter = async (chapter: string) => {
   <div>
     <h1 class="m-4 text-gray-400 font-bold text-lg capitalize">{{ route.params.chap }}</h1>
   </div>
-  <div v-if="isLoading"><LoaderBar /></div>
+  <div v-if="isLoading | infoLoad"><LoaderBar /></div>
   <div v-else-if="error">Error: {{ error.message }}</div>
   <div v-else class="flex flex-col justify-center">
     <img
